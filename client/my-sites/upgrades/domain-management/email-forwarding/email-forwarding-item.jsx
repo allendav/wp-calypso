@@ -30,7 +30,13 @@ const EmailForwardingItem = React.createClass( {
 			this.recordEvent( 'deleteClick', domain, mailbox, forward_address, ! error );
 
 			if ( error ) {
-				notices.error( error.message || this.translate( 'Failed to delete email forwarding record. Please try again or contact customer support if error persists.' ) );
+				notices.error( error.message || this.translate( 'Failed to delete email forwarding record. Please try again or {{contactSupportLink}}contact support{{/contactSupportLink}}.',
+					{
+						components: {
+							contactSupportLink: <a href={ supportPaths.CONTACT }/>
+						}
+					} )
+				);
 			} else {
 				notices.success(
 					this.translate( 'Yay, e-mail forwarding for %(email)s has been successfully deleted.', {
