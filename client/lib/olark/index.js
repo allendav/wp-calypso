@@ -112,19 +112,29 @@ const olark = {
 	},
 
 	fetchUpgradesCache() {
-		wpcom.req.get( { path: '/me/upgrades' }, ( error, data ) => {
-			if ( error ) {
-				return;
-			}
+		console.log('fetchUpgradesCache');
+		console.log( 'sites' );
+		console.log( sites );
+		console.log( sites.fetched )
+		if( sites.fetched ) {
+			this.setUpgradesCache();
+		} else {
+			console.log('wait for sites to change');
+			sites.on( 'change', this.setUpgradesCache() );
+		}
+	},
 
-			if ( ! this.hasChatEligibleUpgrade( data ) ) {
-				this.storeEligibility( false );
-				return;
-			}
+	setUpgradesCache() {
+		console.log( 'setUpgradesCache' );
+		console.log( sites.fetched );
+		console.log( this.hasChatEligibleUpgrade() );
+		if ( ! this.hasChatEligibleUpgrade() ) {
+			this.storeEligibility( false );
+			return;
+		}
 
-			this.storeEligibility( true );
-			this.emit( 'eligible' );
-		} );
+		this.storeEligibility( true );
+		this.emit( 'eligible' );
 	},
 
 	storeEligibility( status ) {
@@ -456,15 +466,18 @@ const olark = {
 		} );
 	},
 
-	hasChatEligibleUpgrade( upgrades ) {
-		return upgrades && upgrades.some( ( upgrade ) => {
+	hasChatEligibleUpgrade() {
+		console.log('hasChatEligibleUpgrade');
+		console.log( sites.data );
+		return sites.data.filter( ( site ) => {
+			console.log( site );
 			var userType;
 
-			if ( isBusiness( upgrade ) ) {
+			if ( isBusiness( site.plan ) ) {
 				userType = 'Business';
 			}
 
-			if ( isEnterprise( upgrade ) ) {
+			if ( isEnterprise( site.plan ) ) {
 				userType = 'ENTERPRISE';
 			}
 
