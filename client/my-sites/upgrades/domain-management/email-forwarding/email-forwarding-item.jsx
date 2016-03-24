@@ -9,11 +9,12 @@ import { bindActionCreators } from 'redux';
  * Internal dependencies
  */
 import analyticsMixin from 'lib/mixins/analytics';
-import notices from 'notices';
-import * as upgradesActions from 'lib/upgrades/actions';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
+import notices from 'notices';
 import { successNotice } from 'state/notices/actions';
+import supportPaths from 'lib/url/support';
+import * as upgradesActions from 'lib/upgrades/actions';
 
 const EmailForwardingItem = React.createClass( {
 	mixins: [ analyticsMixin( 'domainManagement', 'emailForwarding' ) ],
@@ -26,13 +27,13 @@ const EmailForwardingItem = React.createClass( {
 		}
 
 		upgradesActions.deleteEmailForwarding( domain, mailbox, ( error ) => {
-			this.recordEvent( 'deleteClick', domain, mailbox, forward_address, ! Boolean( error ) );
+			this.recordEvent( 'deleteClick', domain, mailbox, forward_address, ! error );
 
 			if ( error ) {
 				notices.error( error.message || this.translate( 'Failed to delete email forwarding record. Please try again or contact customer support if error persists.' ) );
 			} else {
 				notices.success(
-					this.translate( 'Yay, %(email)s has been successfully deleted!', {
+					this.translate( 'Yay, e-mail forwarding for %(email)s has been successfully deleted.', {
 						args: {
 							email: email
 						}
@@ -51,10 +52,16 @@ const EmailForwardingItem = React.createClass( {
 		}
 
 		upgradesActions.resendVerificationEmailForwarding( domain, mailbox, ( error, response ) => {
-			this.recordEvent( 'resendVerificationClick', domain, mailbox, forward_address, ! Boolean( error ) );
+			this.recordEvent( 'resendVerificationClick', domain, mailbox, forward_address, ! error );
 
 			if ( error || ! response.sent ) {
-				notices.error( error.message || this.translate( 'Failed to resend verification email for email forwarding record. Please try again or contact customer support if error persists.' ) );
+				notices.error( this.translate( 'Failed to resend verification email for email forwarding record. Please try again or {{contactSupportLink}}contact support{{/contactSupportLink}}.',
+					{
+						components: {
+							contactSupportLink: <a href={ supportPaths.CONTACT }/>
+						}
+					} )
+				);
 			} else {
 				notices.success(
 					this.translate( 'Yay, successfully sent confirmation email to %(email)s!', {

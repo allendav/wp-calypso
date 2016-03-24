@@ -118,8 +118,6 @@ function reducer( state, payload ) {
 		case UpgradesActionTypes.EMAIL_FORWARDING_DELETE_COMPLETED:
 			state = deleteTemporaryMailbox( state, action.domainName, action.mailbox );
 			break;
-		case UpgradesActionTypes.EMAIL_FORWARDING_RESEND_VERIFICATION_COMPLETED:
-			break;
 	}
 
 	return state;
